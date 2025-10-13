@@ -1,0 +1,50 @@
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { User, onAuthStateChanged, signInWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
+import { auth } from '../lib/firebase.ts';
+
+type AuthContextType = {
+  user: User | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  getIdToken: () => Promise<string | null>;
+};
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  const value = useMemo<AuthContextType>(() => ({
+    user,
+    loading,
+    async signIn(email: string, password: string) {
+      await signInWithEmailAndPassword(auth, email, password);
+    },
+    async signOut() {
+      await fbSignOut(auth);
+    },
+    async getIdToken() {
+      if (!auth.currentUser) return null;
+      return await auth.currentUser.getIdToken();
+    }
+  }), [user, loading]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}
+
