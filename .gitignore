@@ -13,3 +13,6 @@ out/
 /frontend/.env
 .DS_Store
 
+# Firebase credentials (keep out of VCS)
+siyoth-sb-emp-crud-firebase-adminsdk-fbsvc-76d2aeef62.json
+siyoth-sb-emp-crud-firebase-adminsdk-fbsvc-76d2aeef62.json
