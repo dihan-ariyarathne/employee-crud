@@ -20,6 +20,7 @@ import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 
 import java.util.Objects;
 
@@ -32,6 +33,8 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
+                        // Allow CORS preflight requests
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Public GET endpoints
                         .pathMatchers(HttpMethod.GET, "/api/schema", "/api/schema/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/employees", "/api/employees/**").permitAll()
@@ -51,7 +54,7 @@ public class SecurityConfig {
 
     // Lightweight WebFilter that verifies Firebase ID token (if present) and sets Authentication in context.
     @Bean
-    @Order(-100)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public WebFilter firebaseAuthWebFilter() {
         return (exchange, chain) -> extractBearer(exchange)
                 .flatMap(this::verifyIdToken)
