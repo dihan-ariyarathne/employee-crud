@@ -26,8 +26,12 @@ if (Test-Path $envPath) {
 }
 
 Push-Location $frontendDir
-Write-Host "Installing frontend dependencies (npm ci)..."
-& npm.cmd ci
+if (Test-Path (Join-Path $frontendDir 'node_modules')) {
+  Write-Host "node_modules present; skipping npm ci to save time/space" -ForegroundColor Yellow
+} else {
+  Write-Host "Installing frontend dependencies (npm ci)..."
+  & npm.cmd ci --no-fund --no-audit
+}
 Write-Host "Starting Vite dev server on http://localhost:5173 ..."
 & npm.cmd run dev
 Pop-Location
