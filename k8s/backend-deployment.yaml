@@ -15,7 +15,8 @@ spec:
       labels:
         app: employee-crud-backend
     spec:
-      serviceAccountName: backend-sa
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: backend
           image: ghcr.io/dihan-ariyarathne/employee-crud-backend:latest
@@ -52,3 +53,4 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+
