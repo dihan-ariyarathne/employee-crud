@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-crud-backend
+  namespace: dihan
+  labels:
+    app: employee-crud-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: employee-crud-backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

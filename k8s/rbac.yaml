@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend-sa
+  namespace: dihan
+  labels:
+    app: employee-crud-backend
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: backend-readonly
+  namespace: dihan
+  labels:
+    app: employee-crud-backend
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints", "configmaps"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backend-readonly-binding
+  namespace: dihan
+  labels:
+    app: employee-crud-backend
+subjects:
+  - kind: ServiceAccount
+    name: backend-sa
+    namespace: dihan
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: backend-readonly
+

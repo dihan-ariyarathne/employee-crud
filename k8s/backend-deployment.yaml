@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-crud-backend
+  namespace: dihan
+  labels:
+    app: employee-crud-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: employee-crud-backend
+  template:
+    metadata:
+      labels:
+        app: employee-crud-backend
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+        - name: backend
+          image: ghcr.io/dihan-ariyarathne/employee-crud-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          envFrom:
+            - secretRef:
+                name: backend-env
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
